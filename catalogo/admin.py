@@ -23,6 +23,7 @@ class JuegoAdmin(admin.ModelAdmin):
     list_filter = ("categoria", "plataforma", "disponible")
     search_fields = ("nombre", "descripcion", "plataforma", "categoria__nombre")
     ordering = ("nombre",)
+    readonly_fields = ("slug",)
 
 
 admin.site.site_header = "Administración de Tienda de juegos"

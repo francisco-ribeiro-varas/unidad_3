@@ -20,7 +20,7 @@
                 <article class="game-card">
                     <p class="game-category">{{ juego.categoria.nombre }}</p>
                     <h3 class="game-name">
-                        <a href="{% url 'catalogo:detalle' juego.pk %}">{{ juego.nombre }}</a>
+                        <a href="{% url 'catalogo:detalle' juego.slug %}">{{ juego.nombre }}</a>
                     </h3>
                     <p class="game-description">{{ juego.descripcion|default:"Sin descripción." }}</p>
                     <p class="muted-copy">{{ juego.plataforma|default:"Plataforma no especificada" }}</p>
