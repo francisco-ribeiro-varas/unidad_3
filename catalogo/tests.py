@@ -1,3 +1,86 @@
-from django.test import TestCase
+from django.contrib import admin
+from django.test import TestCase, override_settings
+from django.urls import reverse
 
-# Create your tests here.
+from .admin import CategoriaAdmin
+from .models import Categoria, Juego
+
+
+class CatalogoViewsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.categoria = Categoria.objects.create(
+            nombre="Aventura",
+            descripcion="Juegos de aventura",
+        )
+        cls.juego = Juego.objects.create(
+            categoria=cls.categoria,
+            nombre="Juego de prueba",
+            descripcion="Descripción del juego",
+            plataforma="PC",
+            precio=19990,
+            stock=5,
+        )
+
+    def test_inicio_muestra_juegos_disponibles_del_orm(self):
+        response = self.client.get(reverse("catalogo:inicio"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Juego de prueba")
+        self.assertContains(response, "Aventura")
+        self.assertContains(response, reverse("catalogo:detalle", args=[self.juego.pk]))
+
+    def test_inicio_muestra_estado_vacio(self):
+        Juego.objects.all().delete()
+
+        response = self.client.get(reverse("catalogo:inicio"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Aún no hay juegos disponibles")
+
+    def test_detalle_muestra_juego_y_categoria(self):
+        response = self.client.get(reverse("catalogo:detalle", args=[self.juego.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Juego de prueba")
+        self.assertContains(response, "Aventura")
+        self.assertContains(response, "$19990")
+
+    @override_settings(DEBUG=False)
+    def test_id_inexistente_muestra_pagina_404_personalizada(self):
+        response = self.client.get(reverse("catalogo:detalle", args=[99999]))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, "No encontramos ese juego", status_code=404)
+        self.assertContains(response, "Volver al inicio", status_code=404)
+        self.assertContains(response, "Ver catálogo", status_code=404)
+
+    def test_juego_no_disponible_no_se_publica(self):
+        self.juego.disponible = False
+        self.juego.save()
+
+        response = self.client.get(reverse("catalogo:inicio"))
+
+        self.assertNotContains(response, "Juego de prueba")
+
+    def test_modelos_registrados_y_categoria_tiene_inline(self):
+        self.assertIn(Categoria, admin.site._registry)
+        self.assertIn(Juego, admin.site._registry)
+        categoria_admin = admin.site._registry[Categoria]
+        self.assertIsInstance(categoria_admin, CategoriaAdmin)
+        self.assertTrue(categoria_admin.inlines)
+        self.assertTrue(issubclass(categoria_admin.inlines[0], admin.TabularInline))
+
+
+class CatalogoModelsTests(TestCase):
+    def test_modelos_tienen_representacion_legible_y_relacion_inversa(self):
+        categoria = Categoria.objects.create(nombre="Estrategia")
+        juego = Juego.objects.create(
+            categoria=categoria,
+            nombre="Juego de estrategia",
+            precio=10000,
+        )
+
+        self.assertEqual(str(categoria), "Estrategia")
+        self.assertEqual(str(juego), "Juego de estrategia")
+        self.assertEqual(categoria.juegos.get(), juego)

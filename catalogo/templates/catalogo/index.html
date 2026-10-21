@@ -1,0 +1,36 @@
+{% extends "catalogo/base.html" %}
+
+{% block title %}Tienda de juegos | Catálogo{% endblock %}
+
+{% block content %}
+    <section class="container hero">
+        <p class="eyebrow">Catálogo</p>
+        <h1>Encuentra tu próximo juego favorito.</h1>
+        <p class="hero-copy">Explora los juegos disponibles en nuestra tienda.</p>
+    </section>
+
+    <section class="container catalog" id="catalogo" aria-labelledby="catalog-title">
+        <div class="section-heading">
+            <h2 id="catalog-title">Juegos disponibles</h2>
+            <p class="game-count">{{ juegos|length }} juego{{ juegos|length|pluralize:"s" }}</p>
+        </div>
+
+        <div class="game-grid">
+            {% for juego in juegos %}
+                <article class="game-card">
+                    <p class="game-category">{{ juego.categoria.nombre }}</p>
+                    <h3 class="game-name">
+                        <a href="{% url 'catalogo:detalle' juego.pk %}">{{ juego.nombre }}</a>
+                    </h3>
+                    <p class="game-description">{{ juego.descripcion|default:"Sin descripción." }}</p>
+                    <p class="muted-copy">{{ juego.plataforma|default:"Plataforma no especificada" }}</p>
+                    <p class="game-price">${{ juego.precio|floatformat:0 }}</p>
+                </article>
+            {% empty %}
+                <div class="empty-state">
+                    <p>Aún no hay juegos disponibles. Vuelve pronto para ver las novedades.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

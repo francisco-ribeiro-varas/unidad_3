@@ -1,0 +1,18 @@
+{% extends "catalogo/base.html" %}
+
+{% block title %}Juego no encontrado | Tienda de juegos{% endblock %}
+
+{% block content %}
+    <section class="container error-message" aria-labelledby="error-title">
+        <p class="error-code">404</p>
+        <h1 id="error-title">No encontramos ese juego</h1>
+        <p class="hero-copy">
+            Puede que el producto ya no esté disponible o que el enlace esté incorrecto.
+            Puedes volver al inicio o explorar el catálogo.
+        </p>
+        <nav class="error-actions" aria-label="Opciones de navegación">
+            <a class="button button-primary" href="{% url 'catalogo:inicio' %}">Volver al inicio</a>
+            <a class="button button-secondary" href="{% url 'catalogo:inicio' %}#catalogo">Ver catálogo</a>
+        </nav>
+    </section>
+{% endblock %}
