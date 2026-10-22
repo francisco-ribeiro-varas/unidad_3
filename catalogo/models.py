@@ -29,6 +29,8 @@ class Juego(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=0)
     stock = models.PositiveIntegerField(default=0)
     disponible = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to="juegos/", blank=True)
+
 
     class Meta:
         ordering = ["nombre"]

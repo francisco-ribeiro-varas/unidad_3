@@ -1,16 +1,20 @@
 {% extends "catalogo/base.html" %}
+{% load formatos %}
 
 {% block title %}{{ juego.nombre }} | Tienda de juegos{% endblock %}
 
 {% block content %}
     <section class="container detail">
         <article class="detail-card">
+            {% if juego.imagen %}
+                <img class="detail-image" src="{{ juego.imagen.url }}" alt="Portada de {{ juego.nombre }}">
+            {% endif %}
             <p class="game-category">{{ juego.categoria.nombre }}</p>
             <h1>{{ juego.nombre }}</h1>
             <p class="detail-description">{{ juego.descripcion|default:"Este juego no tiene descripción." }}</p>
             <div class="detail-facts">
                 <p><strong>Plataforma:</strong> {{ juego.plataforma|default:"No especificada" }}</p>
-                <p><strong>Precio:</strong> ${{ juego.precio|floatformat:0 }}</p>
+                <p><strong>Precio:</strong> {{ juego.precio|clp }}</p>
                 <p><strong>Unidades disponibles:</strong> {{ juego.stock }}</p>
             </div>
             <a class="button button-primary" href="{% url 'catalogo:inicio' %}">Volver al catálogo</a>

@@ -1,4 +1,5 @@
 {% extends "catalogo/base.html" %}
+{% load formatos %}
 
 {% block title %}Tienda de juegos | Catálogo{% endblock %}
 
@@ -18,13 +19,16 @@
         <div class="game-grid">
             {% for juego in juegos %}
                 <article class="game-card">
+                    {% if juego.imagen %}
+                        <img class="game-image" src="{{ juego.imagen.url }}" alt="Portada de {{ juego.nombre }}">
+                    {% endif %}
                     <p class="game-category">{{ juego.categoria.nombre }}</p>
                     <h3 class="game-name">
                         <a href="{% url 'catalogo:detalle' juego.slug %}">{{ juego.nombre }}</a>
                     </h3>
                     <p class="game-description">{{ juego.descripcion|default:"Sin descripción." }}</p>
                     <p class="muted-copy">{{ juego.plataforma|default:"Plataforma no especificada" }}</p>
-                    <p class="game-price">${{ juego.precio|floatformat:0 }}</p>
+                    <p class="game-price">{{ juego.precio|clp }}</p>
                 </article>
             {% empty %}
                 <div class="empty-state">
@@ -33,4 +37,8 @@
             {% endfor %}
         </div>
     </section>
+
+    <script>
+        window.setTimeout(() => window.location.reload(), 5000);
+    </script>
 {% endblock %}

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.test import TestCase
 from django.urls import reverse
 
-from .admin import CategoriaAdmin
+from .admin import CategoriaAdmin, JuegoAdmin
 from .models import Categoria, Juego
 
 
@@ -28,6 +28,7 @@ class CatalogoViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Juego de prueba")
         self.assertContains(response, "Aventura")
+        self.assertContains(response, "$19.990")
         self.assertContains(response, reverse("catalogo:detalle", args=[self.juego.slug]))
 
     def test_inicio_muestra_estado_vacio(self):
@@ -44,7 +45,17 @@ class CatalogoViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Juego de prueba")
         self.assertContains(response, "Aventura")
-        self.assertContains(response, "$19990")
+        self.assertContains(response, "$19.990")
+
+    def test_imagen_del_juego_se_muestra_en_catalogo_y_detalle(self):
+        self.juego.imagen = "juegos/portada.jpg"
+        self.juego.save(update_fields=["imagen"])
+
+        catalogo_response = self.client.get(reverse("catalogo:inicio"))
+        detalle_response = self.client.get(reverse("catalogo:detalle", args=[self.juego.slug]))
+
+        self.assertContains(catalogo_response, "/media/juegos/portada.jpg")
+        self.assertContains(detalle_response, "/media/juegos/portada.jpg")
 
     def test_id_inexistente_muestra_pagina_404_personalizada(self):
         response = self.client.get(reverse("catalogo:detalle", args=["juego-inexistente"]))
@@ -80,6 +91,16 @@ class CatalogoViewsTests(TestCase):
         self.assertIsInstance(categoria_admin, CategoriaAdmin)
         self.assertTrue(categoria_admin.inlines)
         self.assertTrue(issubclass(categoria_admin.inlines[0], admin.TabularInline))
+
+    def test_admin_muestra_miniatura_de_imagen_del_juego(self):
+        juego_admin = JuegoAdmin(Juego, admin.site)
+        self.juego.imagen = "juegos/portada.jpg"
+
+        html = str(juego_admin.miniatura(self.juego))
+
+        self.assertIn('<img src="/media/juegos/portada.jpg"', html)
+        self.assertIn('alt="Portada de Juego de prueba"', html)
+        self.assertIn("miniatura", juego_admin.get_list_display(None))
 
 
 class CatalogoModelsTests(TestCase):

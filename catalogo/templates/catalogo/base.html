@@ -145,6 +145,24 @@
             transition: transform 160ms ease, border-color 160ms ease;
         }
 
+        .game-image,
+        .detail-image {
+            display: block;
+            width: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .game-image {
+            aspect-ratio: 16 / 10;
+            margin-bottom: 18px;
+        }
+
+        .detail-image {
+            max-height: 420px;
+            margin-bottom: 24px;
+        }
+
         .game-card:hover {
             transform: translateY(-4px);
             border-color: var(--accent);
